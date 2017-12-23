@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# ip2geo 0.1
+# ip2geo 0.2
 # author: Pedro Buteri Gonring
 # email: pedro@bigode.net
 # date: 20171223
@@ -15,7 +15,7 @@ import socket
 import random
 
 
-version = '0.1'
+version = '0.2'
 
 
 # Parse and validate arguments
@@ -268,43 +268,43 @@ def cli():
     (options, args) = get_parsed_args()
     socket.setdefaulttimeout(options.timeout)
 
-    if not options.input_file:
-        ip = get_ip(args[0])
-        if not ip:
-            print "Invalid IP or hostname: %s" % args[0]
-            sys.exit(1)
-        print_info = get_print_info(options.api, ip)
-        if print_info:
-            # Set encoding fix pipe '|' redirects for non ascii text
-            print print_info.encode('utf-8')
-            if options.output_file:
-                write_to_file(options.output_file, print_info)
-
-    else:
-        with open(options.input_file, 'r') as f:
-            lines = f.readlines()
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            ip = get_ip(line)
+    try:
+        if not options.input_file:
+            ip = get_ip(args[0])
             if not ip:
-                print "Invalid IP or hostname: %s" % line
-                continue
+                print "Invalid IP or hostname: %s" % args[0]
+                sys.exit(1)
             print_info = get_print_info(options.api, ip)
             if print_info:
-                # Uses sys.stdout and flush to print to terminal asap
-                sys.stdout.write(print_info.encode('utf-8') + '\n')
-                sys.stdout.flush()
+                # Set encoding fix pipe '|' redirects for non ascii text
+                print print_info.encode('utf-8')
                 if options.output_file:
                     write_to_file(options.output_file, print_info)
-            time.sleep(options.sleep)
+
+        else:
+            with open(options.input_file, 'r') as f:
+                lines = f.readlines()
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                ip = get_ip(line)
+                if not ip:
+                    print "Invalid IP or hostname: %s" % line
+                    continue
+                print_info = get_print_info(options.api, ip)
+                if print_info:
+                    # Uses sys.stdout and flush to print to terminal asap
+                    sys.stdout.write(print_info.encode('utf-8') + '\n')
+                    sys.stdout.flush()
+                    if options.output_file:
+                        write_to_file(options.output_file, print_info)
+                time.sleep(options.sleep)
+    except KeyboardInterrupt:
+        print 'Aborting.'
+        sys.exit(1)
 
 
 # Run cli function if invoked from shell
 if __name__ == '__main__':
-    try:
-        cli()
-    except KeyboardInterrupt:
-        print 'Aborting.'
-        sys.exit(1)
+    cli()
