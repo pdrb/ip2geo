@@ -1,12 +1,12 @@
+|Downloads|
+
 ip2geo
 ======
 
 Get geolocation information from IP address or hostname. Uses: 'ip-api.com',
 'freegeoip.net' or 'ipinfo.io'.
 
-Simple example:
-
-::
+Simple example::
 
     $ ip2geo 8.8.8.8
     8.8.8.8 - United States (US), California (CA), Mountain View - Google
@@ -22,34 +22,35 @@ lookups using an input file. This is done to comply to the restrictions on
 'ip-api.com' and 'freegeoip.net'. Just be careful when using 'ipinfo.io'.
 
 
+Notes
+=====
+
+- Works on Python 2 and Python 3
+- Uses only Python standard library for maximum compatibility
+
+
 Install
--------
+=======
 
-Install using pip:
-
-::
+Install using pip::
 
     pip install ip2geo
 
 or
 
-Download and set executable permission on the script file:
-
-::
+Download and set executable permission on the script file::
 
     chmod +x ip2geo.py
 
 or
 
-Download and run using the python interpreter:
-
-::
+Download and run using the python interpreter::
 
     python ip2geo.py
 
 
 Usage
------
+=====
 
 ::
 
@@ -70,36 +71,23 @@ Usage
 
 
 Examples
---------
+========
 
-Get geolocation from IP or hostname:
-
-::
+Get geolocation from IP or hostname::
 
     $ ip2geo google.com
 
-Get geolocation using 'freegeoip.net' api:
-
-::
+Get geolocation using 'freegeoip.net' api::
 
     $ ip2geo google.com -g freegeoip
 
-Uses an input file containing multiple ips/hostnames (one per line):
-
-::
+Uses an input file containing multiple ips/hostnames (one per line)::
 
     $ ip2geo -i ips.txt
 
-Save output to file:
-
-::
+Save output to file::
 
     $ ip2geo -i ips.txt -o geo_info.txt
 
 
-Notes
------
-
-- Works on Python 2
-- Tested on Linux and Windows, but should work on all platforms
-- Uses only Python standard library for maximum compatibility
+.. |Downloads| image:: https://pepy.tech/badge/ip2geo

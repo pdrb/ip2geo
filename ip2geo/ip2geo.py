@@ -1,11 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
-# ip2geo 0.2
+# ip2geo 0.3
 # author: Pedro Buteri Gonring
 # email: pedro@bigode.net
-# date: 20171223
+# date: 20190109
 
-import urllib2
 import json
 import sys
 import time
@@ -14,8 +13,13 @@ import optparse
 import socket
 import random
 
+if sys.version_info[0:2] <= (2, 7):
+    import urllib2
+else:
+    import urllib.request as urllib2
 
-version = '0.2'
+
+version = '0.3'
 
 
 # Parse and validate arguments
@@ -24,7 +28,7 @@ def get_parsed_args():
     # Create the parser
     parser = optparse.OptionParser(
         description="get geolocation from IP address or hostname, can use: "
-        "'ip-api.com', 'freegeoip.net' or 'ipinfo.io'",
+        "'ip-api.com', 'freegeoip.app' or 'ipinfo.io'",
         usage=usage, version=version
     )
     parser.add_option(
@@ -99,10 +103,10 @@ def get_http_response(url, ip):
         resp = urllib2.urlopen(req).read()
     except urllib2.URLError as ex:
         if hasattr(ex, 'reason'):
-            print "%s - %s" % (ip, ex.reason)
+            print("%s - %s" % (ip, ex.reason))
             return None
         elif hasattr(ex, 'code'):
-            print "%s - %s" % (ip, ex)
+            print("%s - %s" % (ip, ex))
             return None
     return resp
 
@@ -114,7 +118,7 @@ def get_geo_ipapi(ip):
     if not resp:
         return None
     try:
-        geo = json.loads(resp)
+        geo = json.loads(resp.decode('utf-8'))
     except (TypeError, ValueError):
         return None
     # Uses dict.get to set a default empty value if a key doesnt exists and to
@@ -129,14 +133,14 @@ def get_geo_ipapi(ip):
     return location
 
 
-# Get geolocation from "freegeoip.net"
+# Get geolocation from "freegeoip.app"
 def get_geo_freegeoip(ip):
-    query_url = 'http://freegeoip.net/json/' + ip.rstrip()
+    query_url = 'https://freegeoip.app/json/' + ip.rstrip()
     resp = get_http_response(query_url, ip)
     if not resp:
         return None
     try:
-        geo = json.loads(resp)
+        geo = json.loads(resp.decode('utf-8'))
     except (TypeError, ValueError):
         return None
     location = {'country': geo.get('country_name', ''),
@@ -155,7 +159,7 @@ def get_geo_ipinfo(ip):
     if not resp:
         return None
     try:
-        geo = json.loads(resp)
+        geo = json.loads(resp.decode('utf-8'))
     except (TypeError, ValueError):
         return None
     location = {'country': geo.get('country', ''),
@@ -272,12 +276,15 @@ def cli():
         if not options.input_file:
             ip = get_ip(args[0])
             if not ip:
-                print "Invalid IP or hostname: %s" % args[0]
+                print("Invalid IP or hostname: %s" % args[0])
                 sys.exit(1)
             print_info = get_print_info(options.api, ip)
             if print_info:
-                # Set encoding fix pipe '|' redirects for non ascii text
-                print print_info.encode('utf-8')
+                if sys.version_info[0:2] <= (2, 7):
+                    # Set encoding fix pipe '|' redirects for non ascii text
+                    print(print_info.encode('utf-8'))
+                else:
+                    print(print_info)
                 if options.output_file:
                     write_to_file(options.output_file, print_info)
 
@@ -290,18 +297,21 @@ def cli():
                     continue
                 ip = get_ip(line)
                 if not ip:
-                    print "Invalid IP or hostname: %s" % line
+                    print("Invalid IP or hostname: %s" % line)
                     continue
                 print_info = get_print_info(options.api, ip)
                 if print_info:
-                    # Uses sys.stdout and flush to print to terminal asap
-                    sys.stdout.write(print_info.encode('utf-8') + '\n')
+                    if sys.version_info[0:2] <= (2, 7):
+                        # Uses sys.stdout and flush to print to terminal asap
+                        sys.stdout.write(print_info.encode('utf-8') + '\n')
+                    else:
+                        sys.stdout.write(print_info + '\n')
                     sys.stdout.flush()
                     if options.output_file:
                         write_to_file(options.output_file, print_info)
                 time.sleep(options.sleep)
     except KeyboardInterrupt:
-        print 'Aborting.'
+        print('Aborting.')
         sys.exit(1)
 
 
